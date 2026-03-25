@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,12 +21,13 @@ fun SearchScreen(
     searchResults: List<Movie>,
     isLoading: Boolean,
     errorMessage: String?,
-    onSearch: (String) -> Unit,
+    searchQuery: String,
+    onQueryChange: (String) -> Unit,
+    onSearch: () -> Unit,
     onBack: () -> Unit,
     onMovieSelected: (Movie) -> Unit,
     onClearResults: () -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
     var showContextMenu by remember { mutableStateOf(false) }
     var selectedMovie by remember { mutableStateOf<Movie?>(null) }
 
@@ -42,7 +44,7 @@ fun SearchScreen(
                 title = { Text("Поиск фильмов") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
                     }
                 }
             )
@@ -62,7 +64,7 @@ fun SearchScreen(
             ) {
                 OutlinedTextField(
                     value = searchQuery,
-                    onValueChange = { searchQuery = it },
+                    onValueChange = onQueryChange,
                     modifier = Modifier.weight(1f),
                     placeholder = { Text("Введите название фильма") },
                     singleLine = true,
@@ -72,11 +74,7 @@ fun SearchScreen(
                 )
 
                 Button(
-                    onClick = {
-                        if (searchQuery.isNotBlank()) {
-                            onSearch(searchQuery)
-                        }
-                    },
+                    onClick = onSearch,
                     enabled = searchQuery.isNotBlank() && !isLoading
                 ) {
                     if (isLoading) {
@@ -191,7 +189,6 @@ fun SearchScreen(
                                         showContextMenu = true
                                     },
                                     onClick = {
-                                        // Просто выбираем фильм и переходим к редактированию
                                         onMovieSelected(movie)
                                     }
                                 )

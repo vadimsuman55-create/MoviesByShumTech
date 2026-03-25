@@ -4,10 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,29 +19,30 @@ import androidx.compose.ui.text.font.FontWeight
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
-import com.shumtech.movies.model.Movie
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddScreen(
+    title: String,
+    year: String,
+    posterUrl: String,
+    isEditMode: Boolean,
+    onTitleChange: (String) -> Unit,
+    onYearChange: (String) -> Unit,
+    onPosterChange: (String) -> Unit,
     onBack: () -> Unit,
     onOpenSearch: () -> Unit,
-    onAddMovie: (Movie) -> Unit,
-    selectedMovie: Movie?
+    onAddMovie: () -> Unit
 ) {
-    var title by remember(selectedMovie) { mutableStateOf(selectedMovie?.title ?: "") }
-    var year by remember(selectedMovie) { mutableStateOf(selectedMovie?.year ?: "") }
-    var posterUrl by remember(selectedMovie) { mutableStateOf(selectedMovie?.posterUrl ?: "") }
-
     val isFormValid = title.isNotBlank()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (selectedMovie == null) "Добавить фильм" else "Редактировать фильм") },
+                title = { Text(if (isEditMode) "Редактировать фильм" else "Добавить фильм") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
                     }
                 },
                 actions = {
@@ -106,7 +107,7 @@ fun AddScreen(
             // Поле для названия фильма
             OutlinedTextField(
                 value = title,
-                onValueChange = { title = it },
+                onValueChange = onTitleChange,
                 label = { Text("Название фильма") },
                 placeholder = { Text("Введите название") },
                 modifier = Modifier.fillMaxWidth(),
@@ -124,7 +125,7 @@ fun AddScreen(
             // Поле для года выпуска
             OutlinedTextField(
                 value = year,
-                onValueChange = { year = it },
+                onValueChange = onYearChange,
                 label = { Text("Год выпуска") },
                 placeholder = { Text("Например: 2024") },
                 modifier = Modifier.fillMaxWidth(),
@@ -135,30 +136,14 @@ fun AddScreen(
 
             // Кнопка добавления
             Button(
-                onClick = {
-                    if (isFormValid) {
-                        val movieToAdd = selectedMovie?.copy(
-                            title = title,
-                            year = year,
-                            posterUrl = posterUrl
-                        ) ?: Movie(
-                            title = title,
-                            year = year,
-                            posterUrl = posterUrl,
-                            imdbID = "",
-                            isSelected = false
-                        )
-                        onAddMovie(movieToAdd)
-                        onBack()
-                    }
-                },
+                onClick = onAddMovie,
                 enabled = isFormValid,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
                 Text(
-                    text = if (selectedMovie == null) "ДОБАВИТЬ ФИЛЬМ" else "СОХРАНИТЬ",
+                    text = if (isEditMode) "СОХРАНИТЬ" else "ДОБАВИТЬ ФИЛЬМ",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -167,7 +152,7 @@ fun AddScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Подсказка
-            if (selectedMovie == null) {
+            if (!isEditMode) {
                 Text(
                     text = "Или нажмите на иконку поиска 🔍 чтобы найти фильм",
                     fontSize = 12.sp,
