@@ -1,4 +1,4 @@
-package com.shumtech.movies.view   // замените на ваш фактический пакет
+package com.shumtech.movies.view
 
 import com.shumtech.movies.model.Movie
 

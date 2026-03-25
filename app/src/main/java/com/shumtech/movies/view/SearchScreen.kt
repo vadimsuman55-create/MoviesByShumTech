@@ -193,7 +193,6 @@ fun SearchScreen(
                                     onClick = {
                                         // Просто выбираем фильм и переходим к редактированию
                                         onMovieSelected(movie)
-                                        // onBack() - УБИРАЕМ, так как onMovieSelected уже меняет экран на ADD
                                     }
                                 )
                             }
@@ -223,7 +222,6 @@ fun SearchScreen(
                     onClick = {
                         onMovieSelected(selectedMovie!!)
                         showContextMenu = false
-                        // Не вызываем onBack() - onMovieSelected сам переключит экран
                     }
                 ) {
                     Text("Редактировать")
