@@ -25,4 +25,7 @@ interface MovieDao {
 
     @Query("SELECT COUNT(*) FROM movies WHERE isSelected = 1")
     suspend fun getSelectedCount(): Int
+
+    @Query("SELECT * FROM movies WHERE id = :id")
+    suspend fun getMovieById(id: Int): Movie?
 }

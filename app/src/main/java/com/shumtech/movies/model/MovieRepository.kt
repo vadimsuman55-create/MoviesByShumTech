@@ -26,6 +26,10 @@ class MovieRepository(context: Context) {
         movieDao.clearAllSelections()
     }
 
+    suspend fun getMovieById(id: Int): Movie? = withContext(Dispatchers.IO) {
+        movieDao.getMovieById(id)
+    }
+
     suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
         try {
             val response = RetrofitClient.instance.searchMovies(RetrofitClient.API_KEY, query)
