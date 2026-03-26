@@ -8,8 +8,11 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shumtech.movies.ui.theme.MoviesByShumTechTheme
 import com.shumtech.movies.viewmodel.MainViewModel
-import com.shumtech.movies.viewmodel.MainViewModelFactory
 import com.shumtech.movies.view.*
+import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.shumtech.movies.model.MovieRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,5 +44,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+class MainViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            val repository = MovieRepository(context.applicationContext)
+            @Suppress("UNCHECKED_CAST")
+            return MainViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
