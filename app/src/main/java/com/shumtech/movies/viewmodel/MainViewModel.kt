@@ -174,7 +174,16 @@ class MainViewModel(
     }
 
     private fun selectMovie(movie: Movie) {
-        navigateToAdd(movie)
+        _addState.update {
+            it.copy(
+                title = movie.title,
+                year = movie.year,
+                posterUrl = movie.posterUrl,
+                isEditMode = false,
+                editingMovieId = null
+            )
+        }
+        _currentScreen.value = Screen.ADD
         clearResults()
     }
 
