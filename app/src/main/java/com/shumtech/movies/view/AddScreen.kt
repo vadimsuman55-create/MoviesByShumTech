@@ -19,34 +19,26 @@ import androidx.compose.ui.text.font.FontWeight
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
+import com.shumtech.movies.mvi.AddIntent
+import com.shumtech.movies.mvi.AddState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddScreen(
-    title: String,
-    year: String,
-    posterUrl: String,
-    isEditMode: Boolean,
-    onTitleChange: (String) -> Unit,
-    onYearChange: (String) -> Unit,
-    onPosterChange: (String) -> Unit,
-    onBack: () -> Unit,
-    onOpenSearch: () -> Unit,
-    onAddMovie: () -> Unit
+    state: AddState,
+    onIntent: (AddIntent) -> Unit
 ) {
-    val isFormValid = title.isNotBlank()
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isEditMode) "Редактировать фильм" else "Добавить фильм") },
+                title = { Text(if (state.isEditMode) "Редактировать фильм" else "Добавить фильм") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { onIntent(AddIntent.NavigateBack) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
                     }
                 },
                 actions = {
-                    IconButton(onClick = onOpenSearch) {
+                    IconButton(onClick = { onIntent(AddIntent.OpenSearch) }) {
                         Icon(Icons.Default.Search, contentDescription = "Поиск фильмов")
                     }
                 }
@@ -60,7 +52,7 @@ fun AddScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Постер фильма
+            // Постер
             Card(
                 modifier = Modifier
                     .size(200.dp, 250.dp)
@@ -68,11 +60,11 @@ fun AddScreen(
                 elevation = CardDefaults.cardElevation(4.dp),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                if (posterUrl.isNotBlank() && posterUrl != "N/A") {
+                if (state.posterUrl.isNotBlank() && state.posterUrl != "N/A") {
                     Image(
                         painter = rememberAsyncImagePainter(
                             ImageRequest.Builder(LocalContext.current)
-                                .data(posterUrl)
+                                .data(state.posterUrl)
                                 .crossfade(true)
                                 .scale(Scale.FILL)
                                 .build()
@@ -89,10 +81,7 @@ fun AddScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "🎬",
-                                fontSize = 64.sp
-                            )
+                            Text(text = "🎬", fontSize = 64.sp)
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = "Нет постера",
@@ -104,17 +93,16 @@ fun AddScreen(
                 }
             }
 
-            // Поле для названия фильма
             OutlinedTextField(
-                value = title,
-                onValueChange = onTitleChange,
+                value = state.title,
+                onValueChange = { onIntent(AddIntent.UpdateTitle(it)) },
                 label = { Text("Название фильма") },
                 placeholder = { Text("Введите название") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                isError = title.isBlank(),
+                isError = state.title.isBlank(),
                 supportingText = {
-                    if (title.isBlank()) {
+                    if (state.title.isBlank()) {
                         Text("Обязательное поле", color = MaterialTheme.colorScheme.error)
                     }
                 }
@@ -122,10 +110,9 @@ fun AddScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Поле для года выпуска
             OutlinedTextField(
-                value = year,
-                onValueChange = onYearChange,
+                value = state.year,
+                onValueChange = { onIntent(AddIntent.UpdateYear(it)) },
                 label = { Text("Год выпуска") },
                 placeholder = { Text("Например: 2024") },
                 modifier = Modifier.fillMaxWidth(),
@@ -134,16 +121,15 @@ fun AddScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Кнопка добавления
             Button(
-                onClick = onAddMovie,
-                enabled = isFormValid,
+                onClick = { onIntent(AddIntent.SaveMovie) },
+                enabled = state.title.isNotBlank() && !state.isSaving,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
                 Text(
-                    text = if (isEditMode) "СОХРАНИТЬ" else "ДОБАВИТЬ ФИЛЬМ",
+                    text = if (state.isEditMode) "СОХРАНИТЬ" else "ДОБАВИТЬ ФИЛЬМ",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -151,8 +137,7 @@ fun AddScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Подсказка
-            if (!isEditMode) {
+            if (!state.isEditMode) {
                 Text(
                     text = "Или нажмите на иконку поиска 🔍 чтобы найти фильм",
                     fontSize = 12.sp,

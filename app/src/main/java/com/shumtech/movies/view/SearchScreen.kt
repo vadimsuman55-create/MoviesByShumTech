@@ -14,27 +14,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import com.shumtech.movies.model.Movie
+import com.shumtech.movies.mvi.SearchIntent
+import com.shumtech.movies.mvi.SearchState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    searchResults: List<Movie>,
-    isLoading: Boolean,
-    errorMessage: String?,
-    searchQuery: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: () -> Unit,
-    onBack: () -> Unit,
-    onMovieSelected: (Movie) -> Unit,
-    onClearResults: () -> Unit
+    state: SearchState,
+    onIntent: (SearchIntent) -> Unit
 ) {
     var showContextMenu by remember { mutableStateOf(false) }
     var selectedMovie by remember { mutableStateOf<Movie?>(null) }
 
-    // Очищаем результаты при выходе
     DisposableEffect(Unit) {
         onDispose {
-            onClearResults()
+            onIntent(SearchIntent.ClearResults)
         }
     }
 
@@ -43,7 +37,7 @@ fun SearchScreen(
             TopAppBar(
                 title = { Text("Поиск фильмов") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { onIntent(SearchIntent.NavigateBack) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
                     }
                 }
@@ -55,7 +49,6 @@ fun SearchScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Поисковая строка
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -63,8 +56,8 @@ fun SearchScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = onQueryChange,
+                    value = state.query,
+                    onValueChange = { onIntent(SearchIntent.UpdateQuery(it)) },
                     modifier = Modifier.weight(1f),
                     placeholder = { Text("Введите название фильма") },
                     singleLine = true,
@@ -74,10 +67,10 @@ fun SearchScreen(
                 )
 
                 Button(
-                    onClick = onSearch,
-                    enabled = searchQuery.isNotBlank() && !isLoading
+                    onClick = { onIntent(SearchIntent.PerformSearch) },
+                    enabled = state.query.isNotBlank() && !state.isLoading
                 ) {
-                    if (isLoading) {
+                    if (state.isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
                             color = MaterialTheme.colorScheme.onPrimary
@@ -90,14 +83,13 @@ fun SearchScreen(
 
             HorizontalDivider()
 
-            // Результаты поиска
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f)
             ) {
                 when {
-                    isLoading -> {
+                    state.isLoading -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -114,7 +106,7 @@ fun SearchScreen(
                         }
                     }
 
-                    errorMessage != null -> {
+                    state.error != null -> {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -130,7 +122,7 @@ fun SearchScreen(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = errorMessage,
+                                text = state.error,
                                 fontSize = 18.sp,
                                 color = MaterialTheme.colorScheme.error
                             )
@@ -143,7 +135,7 @@ fun SearchScreen(
                         }
                     }
 
-                    searchResults.isEmpty() && !isLoading -> {
+                    state.results.isEmpty() && !state.isLoading -> {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -179,9 +171,9 @@ fun SearchScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             itemsIndexed(
-                                items = searchResults,
+                                items = state.results,
                                 key = { index, movie -> "${movie.imdbID}_$index" }
-                            ) { index, movie ->
+                            ) { _, movie ->
                                 SearchResultItem(
                                     movie = movie,
                                     onLongClick = {
@@ -189,7 +181,7 @@ fun SearchScreen(
                                         showContextMenu = true
                                     },
                                     onClick = {
-                                        onMovieSelected(movie)
+                                        onIntent(SearchIntent.SelectMovie(movie))
                                     }
                                 )
                             }
@@ -200,7 +192,6 @@ fun SearchScreen(
         }
     }
 
-    // Контекстное меню
     if (showContextMenu && selectedMovie != null) {
         AlertDialog(
             onDismissRequest = { showContextMenu = false },
@@ -217,7 +208,7 @@ fun SearchScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onMovieSelected(selectedMovie!!)
+                        onIntent(SearchIntent.SelectMovie(selectedMovie!!))
                         showContextMenu = false
                     }
                 ) {
@@ -252,7 +243,6 @@ fun SearchResultItem(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Заголовок и год
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -277,12 +267,10 @@ fun SearchResultItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Информация о фильме
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Год выпуска
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Info,
@@ -298,7 +286,6 @@ fun SearchResultItem(
                     )
                 }
 
-                // Жанр
                 Surface(
                     shape = MaterialTheme.shapes.small,
                     color = MaterialTheme.colorScheme.secondaryContainer,
@@ -315,7 +302,6 @@ fun SearchResultItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // IMDb ID
             Text(
                 text = "IMDb: ${movie.imdbID}",
                 fontSize = 12.sp,

@@ -19,16 +19,15 @@ import androidx.compose.ui.text.font.FontWeight
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
+import com.shumtech.movies.mvi.MainIntent
+import com.shumtech.movies.mvi.MainState
 import com.shumtech.movies.model.Movie
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    movies: List<Movie>,
-    selectedCount: Int,
-    onAddClick: () -> Unit,
-    onMovieToggle: (Movie) -> Unit,
-    onDeleteSelected: () -> Unit
+    state: MainState,
+    onIntent: (MainIntent) -> Unit
 ) {
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
@@ -39,19 +38,17 @@ fun MainScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            if (selectedCount > 0) {
+                            if (state.selectedCount > 0) {
                                 showDeleteConfirmation = true
                             }
                         },
-                        enabled = selectedCount > 0
+                        enabled = state.selectedCount > 0
                     ) {
                         BadgedBox(
                             badge = {
-                                if (selectedCount > 0) {
-                                    Badge(
-                                        containerColor = MaterialTheme.colorScheme.error
-                                    ) {
-                                        Text(selectedCount.toString())
+                                if (state.selectedCount > 0) {
+                                    Badge(containerColor = MaterialTheme.colorScheme.error) {
+                                        Text(state.selectedCount.toString())
                                     }
                                 }
                             }
@@ -59,7 +56,7 @@ fun MainScreen(
                             Icon(
                                 Icons.Default.Delete,
                                 contentDescription = "Удалить выбранные",
-                                tint = if (selectedCount > 0)
+                                tint = if (state.selectedCount > 0)
                                     MaterialTheme.colorScheme.error
                                 else
                                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
@@ -70,7 +67,7 @@ fun MainScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddClick) {
+            FloatingActionButton(onClick = { onIntent(MainIntent.AddMovieClicked) }) {
                 Icon(Icons.Default.Add, contentDescription = "Добавить фильм")
             }
         }
@@ -80,8 +77,7 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (movies.isEmpty()) {
-                // Пустое состояние
+            if (state.movies.isEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -89,10 +85,7 @@ fun MainScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        text = "🎬",
-                        fontSize = 80.sp
-                    )
+                    Text(text = "🎬", fontSize = 80.sp)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "У вас нет выбранных фильмов",
@@ -107,7 +100,6 @@ fun MainScreen(
                     )
                 }
             } else {
-                // Список фильмов с постерами
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
@@ -119,12 +111,12 @@ fun MainScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(
-                        items = movies,
+                        items = state.movies,
                         key = { movie -> movie.id }
                     ) { movie ->
                         MovieItem(
                             movie = movie,
-                            onSelectionChange = { onMovieToggle(movie) }
+                            onSelectionChange = { onIntent(MainIntent.ToggleSelection(movie)) }
                         )
                     }
                 }
@@ -132,18 +124,15 @@ fun MainScreen(
         }
     }
 
-    // Диалог подтверждения удаления
     if (showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = false },
             title = { Text("Подтверждение удаления") },
-            text = {
-                Text("Вы действительно хотите удалить $selectedCount выбранных фильмов?")
-            },
+            text = { Text("Вы действительно хотите удалить ${state.selectedCount} выбранных фильмов?") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onDeleteSelected()
+                        onIntent(MainIntent.DeleteSelected)
                         showDeleteConfirmation = false
                     }
                 ) {
@@ -182,7 +171,6 @@ fun MovieItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Checkbox (галочка) для выбора фильма
             Checkbox(
                 checked = movie.isSelected,
                 onCheckedChange = { onSelectionChange() },
@@ -192,7 +180,6 @@ fun MovieItem(
                 )
             )
 
-            // Постер фильма
             Box(
                 modifier = Modifier
                     .size(70.dp, 100.dp)
@@ -221,27 +208,15 @@ fun MovieItem(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = "🎬",
-                                    fontSize = 24.sp
-                                )
-                                Text(
-                                    text = "Нет",
-                                    fontSize = 10.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "постера",
-                                    fontSize = 10.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Text(text = "🎬", fontSize = 24.sp)
+                                Text(text = "Нет", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(text = "постера", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
                 }
             }
 
-            // Информация о фильме
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -257,10 +232,7 @@ fun MovieItem(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Год выпуска
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Info,
                         contentDescription = null,
@@ -277,7 +249,6 @@ fun MovieItem(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Жанр
                 if (movie.genre != null) {
                     Surface(
                         shape = MaterialTheme.shapes.small,
@@ -294,7 +265,6 @@ fun MovieItem(
                 }
             }
 
-            // Индикатор выбора
             if (movie.isSelected) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
