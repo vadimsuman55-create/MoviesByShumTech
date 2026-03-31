@@ -1,40 +1,39 @@
-package com.shumtech.movies.model
+package com.shumtech.movies.data
 
-import android.content.Context
+import com.shumtech.movies.domain.MovieRepository
+import com.shumtech.movies.model.Movie
+import com.shumtech.movies.model.MovieApi
+import com.shumtech.movies.model.MovieDao
+import com.shumtech.movies.model.RetrofitClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class MovieRepository(context: Context) {
-    private val movieDao = MovieDatabase.getDatabase(context).movieDao()
+class MovieRepositoryImpl(
+    private val movieDao: MovieDao,
+    private val api: MovieApi
+) : MovieRepository {
 
-    val allMovies: Flow<List<Movie>> = movieDao.getAllMovies()
+    override fun getAllMovies(): Flow<List<Movie>> = movieDao.getAllMovies()
 
-    suspend fun insertMovie(movie: Movie) {
+    override suspend fun insertMovie(movie: Movie) {
         movieDao.insertMovie(movie.copy(isSelected = false))
     }
 
-    suspend fun updateMovie(movie: Movie) {
+    override suspend fun updateMovie(movie: Movie) {
         movieDao.updateMovie(movie)
     }
 
-    suspend fun deleteSelectedMovies() {
+    override suspend fun deleteSelectedMovies() {
         movieDao.deleteSelectedMovies()
     }
 
-    suspend fun clearAllSelections() {
-        movieDao.clearAllSelections()
-    }
+    override suspend fun getMovieById(id: Int): Movie? = movieDao.getMovieById(id)
 
-    suspend fun getMovieById(id: Int): Movie? = withContext(Dispatchers.IO) {
-        movieDao.getMovieById(id)
-    }
-
-    suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
+    override suspend fun searchMovies(query: String): List<Movie> = withContext(Dispatchers.IO) {
         try {
-            val response = RetrofitClient.instance.searchMovies(RetrofitClient.API_KEY, query)
+            val response = api.searchMovies(RetrofitClient.API_KEY, query)
             if (response.Response == "True" && response.Search != null) {
-                // Для демо генерируем жанр случайно. В реальности нужно делать детальный запрос.
                 val genres = listOf("Драма", "Комедия", "Боевик", "Триллер", "Фантастика", "Ужасы", "Мелодрама")
                 response.Search.mapIndexed { index, result ->
                     Movie(

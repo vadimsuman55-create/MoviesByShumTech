@@ -12,7 +12,7 @@ import com.shumtech.movies.view.*
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.shumtech.movies.model.MovieRepository
+import com.shumtech.movies.data.MovieRepositoryImpl
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 class MainViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            val repository = MovieRepository(context.applicationContext)
+            val repository = MovieRepositoryImpl(context.applicationContext)
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(repository) as T
         }

@@ -3,13 +3,13 @@ package com.shumtech.movies.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shumtech.movies.model.Movie
-import com.shumtech.movies.model.MovieRepository
+import com.shumtech.movies.data.MovieRepositoryImpl
 import com.shumtech.movies.mvi.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val repository: MovieRepository
+    private val repository: MovieRepositoryImpl
 ) : ViewModel() {
 
     // Состояния
