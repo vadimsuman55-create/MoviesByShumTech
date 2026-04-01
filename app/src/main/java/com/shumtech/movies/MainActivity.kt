@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.shumtech.movies.ui.theme.MoviesByShumTechTheme
-import com.shumtech.movies.viewmodel.MainViewModel
+import com.shumtech.movies.presentation.theme.MoviesByShumTechTheme
+import com.shumtech.movies.presentation.viewmodel.MainViewModel
 import com.shumtech.movies.view.*
 import android.content.Context
 import androidx.lifecycle.ViewModel

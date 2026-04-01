@@ -1,15 +1,37 @@
-package com.shumtech.movies.viewmodel
+package com.shumtech.movies.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shumtech.movies.model.Movie
 import com.shumtech.movies.data.MovieRepositoryImpl
-import com.shumtech.movies.mvi.*
-import kotlinx.coroutines.flow.*
+import com.shumtech.movies.domain.usecase.AddMovieUseCase
+import com.shumtech.movies.domain.usecase.DeleteSelectedMoviesUseCase
+import com.shumtech.movies.domain.usecase.GetMovieByIdUseCase
+import com.shumtech.movies.domain.usecase.GetMoviesUseCase
+import com.shumtech.movies.domain.usecase.SearchMoviesUseCase
+import com.shumtech.movies.domain.usecase.ToggleMovieSelectionUseCase
+import com.shumtech.movies.model.Movie
+import com.shumtech.movies.presentation.mvi.AddIntent
+import com.shumtech.movies.presentation.mvi.AddState
+import com.shumtech.movies.presentation.mvi.MainIntent
+import com.shumtech.movies.presentation.mvi.MainState
+import com.shumtech.movies.presentation.mvi.SearchIntent
+import com.shumtech.movies.presentation.mvi.SearchState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val repository: MovieRepositoryImpl
+    private val getMoviesUseCase: GetMoviesUseCase,
+    private val addMovieUseCase: AddMovieUseCase,
+    private val toggleSelectionUseCase: ToggleMovieSelectionUseCase,
+    private val deleteSelectedUseCase: DeleteSelectedMoviesUseCase,
+    private val searchMoviesUseCase: SearchMoviesUseCase,
+    private val getMovieByIdUseCase: GetMovieByIdUseCase,
+    private val updateMovieUseCase: UpdateMovieUseCase
 ) : ViewModel() {
 
     // Состояния
@@ -28,7 +50,12 @@ class MainViewModel(
     enum class Screen { MAIN, ADD, SEARCH }
 
     init {
-        loadMovies()
+        viewModelScope.launch {
+            getMoviesUseCase().collect { movies ->
+                val selected = movies.count { it.isSelected }
+                _mainState.update { it.copy(movies = movies, selectedCount = selected) }
+            }
+        }
     }
 
     // Единый метод обработки интентов
@@ -55,6 +82,79 @@ class MainViewModel(
             is SearchIntent.ClearResults -> clearResults()
             is SearchIntent.NavigateBack -> navigateBackFromSearch()
         }
+    }
+
+    private fun toggleSelection(movie: Movie) {
+        viewModelScope.launch {
+            toggleSelectionUseCase(movie)
+        }
+    }
+
+    private fun deleteSelected() {
+        viewModelScope.launch {
+            deleteSelectedUseCase()
+        }
+    }
+
+    private fun saveMovie() {
+        val state = _addState.value
+        if (state.title.isBlank()) return
+
+        viewModelScope.launch {
+            if (state.isEditMode && state.editingMovieId != null) {
+                val existing = getMovieByIdUseCase(state.editingMovieId)
+                existing?.let {
+                    val updated = it.copy(
+                        title = state.title,
+                        year = state.year,
+                        posterUrl = state.posterUrl
+                    )
+                    updateMovieUseCase(updated)
+                }
+            } else {
+                val movie = Movie(
+                    title = state.title,
+                    year = state.year,
+                    posterUrl = state.posterUrl,
+                    imdbID = "",
+                    isSelected = false
+                )
+                addMovieUseCase(movie)
+            }
+            _currentScreen.value = Screen.MAIN
+            _addState.update { AddState() }
+        }
+    }
+
+    private fun performSearch() {
+        val query = _searchState.value.query
+        if (query.isBlank()) return
+        viewModelScope.launch {
+            _searchState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val results = searchMoviesUseCase(query)
+                _searchState.update { it.copy(results = results, isLoading = false) }
+                if (results.isEmpty()) {
+                    _searchState.update { it.copy(error = "Фильмы не найдены") }
+                }
+            } catch (e: Exception) {
+                _searchState.update { it.copy(error = "Ошибка: ${e.message}", isLoading = false) }
+            }
+        }
+    }
+
+    private fun selectMovie(movie: Movie) {
+        _addState.update {
+            it.copy(
+                title = movie.title,
+                year = movie.year,
+                posterUrl = movie.posterUrl,
+                isEditMode = false,
+                editingMovieId = null
+            )
+        }
+        _currentScreen.value = Screen.ADD
+        clearResults()
     }
 
     // --- Навигация ---

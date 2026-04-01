@@ -1,4 +1,4 @@
-package com.shumtech.movies.mvi
+package com.shumtech.movies.presentation.mvi
 
 import com.shumtech.movies.model.Movie
 

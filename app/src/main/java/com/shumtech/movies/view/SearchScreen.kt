@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import com.shumtech.movies.model.Movie
-import com.shumtech.movies.mvi.SearchIntent
-import com.shumtech.movies.mvi.SearchState
+import com.shumtech.movies.presentation.mvi.SearchIntent
+import com.shumtech.movies.presentation.mvi.SearchState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

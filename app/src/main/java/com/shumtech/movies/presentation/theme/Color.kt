@@ -1,4 +1,4 @@
-package com.shumtech.movies.ui.theme
+package com.shumtech.movies.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -19,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
-import com.shumtech.movies.mvi.MainIntent
-import com.shumtech.movies.mvi.MainState
+import com.shumtech.movies.presentation.mvi.MainIntent
+import com.shumtech.movies.presentation.mvi.MainState
 import com.shumtech.movies.model.Movie
 
 @OptIn(ExperimentalMaterial3Api::class)

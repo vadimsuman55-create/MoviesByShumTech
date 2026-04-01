@@ -1,4 +1,4 @@
-package com.shumtech.movies.mvi
+package com.shumtech.movies.presentation.mvi
 
 sealed class AddIntent {
     data class UpdateTitle(val title: String) : AddIntent()
