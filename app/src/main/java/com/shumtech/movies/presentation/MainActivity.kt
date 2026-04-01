@@ -20,9 +20,9 @@ import com.shumtech.movies.model.MovieDatabase
 import com.shumtech.movies.model.RetrofitClient
 import com.shumtech.movies.presentation.theme.MoviesByShumTechTheme
 import com.shumtech.movies.presentation.viewmodel.MainViewModel
-import com.shumtech.movies.view.AddScreen
-import com.shumtech.movies.view.MainScreen
-import com.shumtech.movies.view.SearchScreen
+import com.shumtech.movies.presentation.view.AddScreen
+import com.shumtech.movies.presentation.view.MainScreen
+import com.shumtech.movies.presentation.view.SearchScreen
 import com.shumtech.movies.domain.usecase.*
 import com.shumtech.movies.presentation.mvi.*
 

@@ -1,18 +1,50 @@
-package com.shumtech.movies.view
+package com.shumtech.movies.presentation.view
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import com.shumtech.movies.model.Movie
 import com.shumtech.movies.presentation.mvi.SearchIntent
 import com.shumtech.movies.presentation.mvi.SearchState
@@ -45,12 +77,12 @@ fun SearchScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             Row(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -58,7 +90,7 @@ fun SearchScreen(
                 OutlinedTextField(
                     value = state.query,
                     onValueChange = { onIntent(SearchIntent.UpdateQuery(it)) },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.Companion.weight(1f),
                     placeholder = { Text("Введите название фильма") },
                     singleLine = true,
                     leadingIcon = {
@@ -72,7 +104,7 @@ fun SearchScreen(
                 ) {
                     if (state.isLoading) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.Companion.size(24.dp),
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
@@ -84,19 +116,19 @@ fun SearchScreen(
             HorizontalDivider()
 
             Box(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxSize()
                     .weight(1f)
             ) {
                 when {
                     state.isLoading -> {
                         Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier.Companion.fillMaxSize(),
+                            contentAlignment = Alignment.Companion.Center
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                                Spacer(modifier = Modifier.height(16.dp))
+                            Column(horizontalAlignment = Alignment.Companion.CenterHorizontally) {
+                                CircularProgressIndicator(modifier = Modifier.Companion.size(48.dp))
+                                Spacer(modifier = Modifier.Companion.height(16.dp))
                                 Text(
                                     text = "Поиск фильмов...",
                                     fontSize = 16.sp,
@@ -108,25 +140,25 @@ fun SearchScreen(
 
                     state.error != null -> {
                         Column(
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .fillMaxSize()
                                 .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                            horizontalAlignment = Alignment.Companion.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             Icon(
                                 Icons.Default.Warning,
                                 contentDescription = null,
-                                modifier = Modifier.size(64.dp),
+                                modifier = Modifier.Companion.size(64.dp),
                                 tint = MaterialTheme.colorScheme.error
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.Companion.height(16.dp))
                             Text(
                                 text = state.error,
                                 fontSize = 18.sp,
                                 color = MaterialTheme.colorScheme.error
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.Companion.height(8.dp))
                             Text(
                                 text = "Попробуйте другой запрос",
                                 fontSize = 14.sp,
@@ -137,25 +169,25 @@ fun SearchScreen(
 
                     state.results.isEmpty() && !state.isLoading -> {
                         Column(
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .fillMaxSize()
                                 .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                            horizontalAlignment = Alignment.Companion.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             Icon(
                                 Icons.Default.Search,
                                 contentDescription = null,
-                                modifier = Modifier.size(64.dp),
+                                modifier = Modifier.Companion.size(64.dp),
                                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.Companion.height(16.dp))
                             Text(
                                 text = "Введите название фильма",
                                 fontSize = 20.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.Companion.height(8.dp))
                             Text(
                                 text = "Например: Avatar, Inception, Titanic",
                                 fontSize = 14.sp,
@@ -166,7 +198,7 @@ fun SearchScreen(
 
                     else -> {
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.Companion.fillMaxSize(),
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -201,7 +233,7 @@ fun SearchScreen(
                     Text("Год: ${selectedMovie!!.year}")
                     Text("Жанр: ${selectedMovie!!.genre ?: "Не указан"}")
                     Text("IMDb ID: ${selectedMovie!!.imdbID}")
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.Companion.height(8.dp))
                     Text("Выберите действие:")
                 }
             },
@@ -231,7 +263,7 @@ fun SearchResultItem(
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.Companion.fillMaxWidth(),
         onClick = onClick,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -239,21 +271,21 @@ fun SearchResultItem(
         )
     ) {
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Companion.CenterVertically
             ) {
                 Text(
                     text = movie.title,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Companion.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.Companion.weight(1f)
                 )
 
                 IconButton(onClick = onLongClick) {
@@ -265,20 +297,20 @@ fun SearchResultItem(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.Companion.height(8.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                     Icon(
                         Icons.Default.Info,
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.Companion.size(16.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.Companion.width(4.dp))
                     Text(
                         text = movie.year,
                         fontSize = 14.sp,
@@ -289,18 +321,18 @@ fun SearchResultItem(
                 Surface(
                     shape = MaterialTheme.shapes.small,
                     color = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.Companion.padding(start = 8.dp)
                 ) {
                     Text(
                         text = movie.genre ?: "Драма",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.Companion.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.Companion.height(8.dp))
 
             Text(
                 text = "IMDb: ${movie.imdbID}",

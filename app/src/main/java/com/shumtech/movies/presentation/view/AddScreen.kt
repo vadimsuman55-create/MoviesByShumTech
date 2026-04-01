@@ -1,21 +1,37 @@
-package com.shumtech.movies.view
+package com.shumtech.movies.presentation.view
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Scale
@@ -46,15 +62,15 @@ fun AddScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
             // Постер
             Card(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .size(200.dp, 250.dp)
                     .padding(bottom = 24.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
@@ -70,19 +86,19 @@ fun AddScreen(
                                 .build()
                         ),
                         contentDescription = "Постер фильма",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        modifier = Modifier.Companion.fillMaxSize(),
+                        contentScale = ContentScale.Companion.Crop
                     )
                 } else {
                     Box(
-                        modifier = Modifier
+                        modifier = Modifier.Companion
                             .fillMaxSize()
                             .padding(16.dp),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Companion.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(horizontalAlignment = Alignment.Companion.CenterHorizontally) {
                             Text(text = "🎬", fontSize = 64.sp)
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.Companion.height(8.dp))
                             Text(
                                 text = "Нет постера",
                                 fontSize = 14.sp,
@@ -98,7 +114,7 @@ fun AddScreen(
                 onValueChange = { onIntent(AddIntent.UpdateTitle(it)) },
                 label = { Text("Название фильма") },
                 placeholder = { Text("Введите название") },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 singleLine = true,
                 isError = state.title.isBlank(),
                 supportingText = {
@@ -108,41 +124,41 @@ fun AddScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.Companion.height(16.dp))
 
             OutlinedTextField(
                 value = state.year,
                 onValueChange = { onIntent(AddIntent.UpdateYear(it)) },
                 label = { Text("Год выпуска") },
                 placeholder = { Text("Например: 2024") },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.Companion.height(24.dp))
 
             Button(
                 onClick = { onIntent(AddIntent.SaveMovie) },
                 enabled = state.title.isNotBlank() && !state.isSaving,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
                 Text(
                     text = if (state.isEditMode) "СОХРАНИТЬ" else "ДОБАВИТЬ ФИЛЬМ",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Companion.Bold
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.Companion.height(8.dp))
 
             if (!state.isEditMode) {
                 Text(
                     text = "Или нажмите на иконку поиска 🔍 чтобы найти фильм",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = Modifier.Companion.padding(top = 16.dp)
                 )
             }
         }
