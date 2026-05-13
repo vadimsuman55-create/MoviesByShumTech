@@ -80,4 +80,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation("com.google.android.youtube:youtube-android-player:1.2.2")
 }

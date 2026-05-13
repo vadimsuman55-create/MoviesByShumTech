@@ -38,8 +38,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -105,26 +107,26 @@ fun MainScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             if (state.movies.isEmpty()) {
                 Column(
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(text = "🎬", fontSize = 80.sp)
-                    Spacer(modifier = Modifier.Companion.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "У вас нет выбранных фильмов",
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.Companion.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Нажмите кнопку + чтобы добавить фильмы",
                         fontSize = 16.sp,
@@ -133,7 +135,7 @@ fun MainScreen(
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.Companion.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
                         start = 16.dp,
                         top = 16.dp,
@@ -186,7 +188,7 @@ fun MovieItem(
     onSelectionChange: () -> Unit
 ) {
     Card(
-        modifier = Modifier.Companion.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (movie.isSelected)
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -198,22 +200,22 @@ fun MovieItem(
         )
     ) {
         Row(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            verticalAlignment = Alignment.Companion.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
                 checked = movie.isSelected,
                 onCheckedChange = { onSelectionChange() },
-                modifier = Modifier.Companion.padding(end = 8.dp),
+                modifier = Modifier.padding(end = 8.dp),
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary
                 )
             )
 
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .size(70.dp, 100.dp)
                     .padding(end = 12.dp)
                     .clip(MaterialTheme.shapes.small)
@@ -228,18 +230,18 @@ fun MovieItem(
                                 .build()
                         ),
                         contentDescription = "Постер ${movie.title}",
-                        modifier = Modifier.Companion.fillMaxSize(),
-                        contentScale = ContentScale.Companion.Crop
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 } else {
                     Surface(
-                        modifier = Modifier.Companion.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.secondaryContainer,
                         tonalElevation = 2.dp
                     ) {
-                        Box(contentAlignment = Alignment.Companion.Center) {
-                            Column(horizontalAlignment = Alignment.Companion.CenterHorizontally) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(text = "🎬", fontSize = 24.sp)
                                 Text(
                                     text = "Нет",
@@ -258,28 +260,28 @@ fun MovieItem(
             }
 
             Column(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .weight(1f)
                     .padding(end = 8.dp)
             ) {
                 Text(
                     text = movie.title,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Companion.Medium,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2
                 )
 
-                Spacer(modifier = Modifier.Companion.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Info,
                         contentDescription = null,
-                        modifier = Modifier.Companion.size(14.dp),
+                        modifier = Modifier.size(14.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.Companion.width(4.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = movie.year,
                         fontSize = 14.sp,
@@ -287,22 +289,19 @@ fun MovieItem(
                     )
                 }
 
-                Spacer(modifier = Modifier.Companion.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 if (movie.genre != null) {
                     Surface(
                         shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier = Modifier.Companion.padding(top = 2.dp)
+                        modifier = Modifier.padding(top = 2.dp)
                     ) {
                         Text(
                             text = movie.genre!!,
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.Companion.padding(
-                                horizontal = 6.dp,
-                                vertical = 2.dp
-                            )
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
                 }
@@ -313,7 +312,7 @@ fun MovieItem(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = "Выбран",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.Companion.size(24.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }

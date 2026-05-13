@@ -5,17 +5,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shumtech.movies.data.MovieRepositoryImpl
-import com.shumtech.movies.domain.usecase.AddMovieUseCase
-import com.shumtech.movies.domain.usecase.DeleteSelectedMoviesUseCase
-import com.shumtech.movies.domain.usecase.GetMovieByIdUseCase
-import com.shumtech.movies.domain.usecase.GetMoviesUseCase
-import com.shumtech.movies.domain.usecase.SearchMoviesUseCase
-import com.shumtech.movies.domain.usecase.ToggleMovieSelectionUseCase
-import com.shumtech.movies.domain.usecase.UpdateMovieUseCase
+import com.shumtech.movies.domain.usecase.*
 import com.shumtech.movies.model.MovieDatabase
 import com.shumtech.movies.model.RetrofitClient
 import com.shumtech.movies.presentation.theme.MoviesByShumTechTheme
@@ -23,8 +18,6 @@ import com.shumtech.movies.presentation.viewmodel.MainViewModel
 import com.shumtech.movies.presentation.view.AddScreen
 import com.shumtech.movies.presentation.view.MainScreen
 import com.shumtech.movies.presentation.view.SearchScreen
-import com.shumtech.movies.domain.usecase.*
-import com.shumtech.movies.presentation.mvi.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,12 +38,10 @@ class MainActivity : ComponentActivity() {
                         state = mainState,
                         onIntent = { viewModel.processIntent(it) }
                     )
-
                     MainViewModel.Screen.ADD -> AddScreen(
                         state = addState,
                         onIntent = { viewModel.processIntent(it) }
                     )
-
                     MainViewModel.Screen.SEARCH -> SearchScreen(
                         state = searchState,
                         onIntent = { viewModel.processIntent(it) }
@@ -64,13 +55,11 @@ class MainActivity : ComponentActivity() {
 class MainViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            // Получаем зависимости data слоя
             val database = MovieDatabase.getDatabase(context)
             val movieDao = database.movieDao()
             val api = RetrofitClient.instance
-            val repository = MovieRepositoryImpl(movieDao, api)  // реализация репозитория
+            val repository = MovieRepositoryImpl(movieDao, api)
 
-            // Создаём UseCase'ы
             val getMoviesUseCase = GetMoviesUseCase(repository)
             val addMovieUseCase = AddMovieUseCase(repository)
             val toggleSelectionUseCase = ToggleMovieSelectionUseCase(repository)

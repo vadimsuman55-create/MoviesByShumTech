@@ -38,8 +38,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -77,12 +79,12 @@ fun SearchScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             Row(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -90,7 +92,7 @@ fun SearchScreen(
                 OutlinedTextField(
                     value = state.query,
                     onValueChange = { onIntent(SearchIntent.UpdateQuery(it)) },
-                    modifier = Modifier.Companion.weight(1f),
+                    modifier = Modifier.weight(1f),
                     placeholder = { Text("Введите название фильма") },
                     singleLine = true,
                     leadingIcon = {
@@ -104,7 +106,7 @@ fun SearchScreen(
                 ) {
                     if (state.isLoading) {
                         CircularProgressIndicator(
-                            modifier = Modifier.Companion.size(24.dp),
+                            modifier = Modifier.size(24.dp),
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
@@ -116,19 +118,19 @@ fun SearchScreen(
             HorizontalDivider()
 
             Box(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxSize()
                     .weight(1f)
             ) {
                 when {
                     state.isLoading -> {
                         Box(
-                            modifier = Modifier.Companion.fillMaxSize(),
-                            contentAlignment = Alignment.Companion.Center
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Column(horizontalAlignment = Alignment.Companion.CenterHorizontally) {
-                                CircularProgressIndicator(modifier = Modifier.Companion.size(48.dp))
-                                Spacer(modifier = Modifier.Companion.height(16.dp))
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
                                 Text(
                                     text = "Поиск фильмов...",
                                     fontSize = 16.sp,
@@ -140,25 +142,25 @@ fun SearchScreen(
 
                     state.error != null -> {
                         Column(
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp),
-                            horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             Icon(
                                 Icons.Default.Warning,
                                 contentDescription = null,
-                                modifier = Modifier.Companion.size(64.dp),
+                                modifier = Modifier.size(64.dp),
                                 tint = MaterialTheme.colorScheme.error
                             )
-                            Spacer(modifier = Modifier.Companion.height(16.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
                             Text(
                                 text = state.error,
                                 fontSize = 18.sp,
                                 color = MaterialTheme.colorScheme.error
                             )
-                            Spacer(modifier = Modifier.Companion.height(8.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = "Попробуйте другой запрос",
                                 fontSize = 14.sp,
@@ -169,25 +171,25 @@ fun SearchScreen(
 
                     state.results.isEmpty() && !state.isLoading -> {
                         Column(
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp),
-                            horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             Icon(
                                 Icons.Default.Search,
                                 contentDescription = null,
-                                modifier = Modifier.Companion.size(64.dp),
+                                modifier = Modifier.size(64.dp),
                                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                             )
-                            Spacer(modifier = Modifier.Companion.height(16.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
                             Text(
                                 text = "Введите название фильма",
                                 fontSize = 20.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            Spacer(modifier = Modifier.Companion.height(8.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = "Например: Avatar, Inception, Titanic",
                                 fontSize = 14.sp,
@@ -198,7 +200,7 @@ fun SearchScreen(
 
                     else -> {
                         LazyColumn(
-                            modifier = Modifier.Companion.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -225,22 +227,23 @@ fun SearchScreen(
     }
 
     if (showContextMenu && selectedMovie != null) {
+        val movie = selectedMovie!!
         AlertDialog(
             onDismissRequest = { showContextMenu = false },
-            title = { Text(selectedMovie!!.title) },
+            title = { Text(movie.title) },
             text = {
                 Column {
-                    Text("Год: ${selectedMovie!!.year}")
-                    Text("Жанр: ${selectedMovie!!.genre ?: "Не указан"}")
-                    Text("IMDb ID: ${selectedMovie!!.imdbID}")
-                    Spacer(modifier = Modifier.Companion.height(8.dp))
+                    Text("Год: ${movie.year}")
+                    Text("Жанр: ${movie.genre ?: "Не указан"}")
+                    Text("IMDb ID: ${movie.imdbID}")
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text("Выберите действие:")
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onIntent(SearchIntent.SelectMovie(selectedMovie!!))
+                        onIntent(SearchIntent.SelectMovie(movie))
                         showContextMenu = false
                     }
                 ) {
@@ -263,7 +266,7 @@ fun SearchResultItem(
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.Companion.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -271,21 +274,21 @@ fun SearchResultItem(
         )
     ) {
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Companion.CenterVertically
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = movie.title,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Companion.Bold,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.Companion.weight(1f)
+                    modifier = Modifier.weight(1f)
                 )
 
                 IconButton(onClick = onLongClick) {
@@ -297,20 +300,20 @@ fun SearchResultItem(
                 }
             }
 
-            Spacer(modifier = Modifier.Companion.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Default.Info,
                         contentDescription = null,
-                        modifier = Modifier.Companion.size(16.dp),
+                        modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.Companion.width(4.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = movie.year,
                         fontSize = 14.sp,
@@ -321,18 +324,18 @@ fun SearchResultItem(
                 Surface(
                     shape = MaterialTheme.shapes.small,
                     color = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier = Modifier.Companion.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp)
                 ) {
                     Text(
                         text = movie.genre ?: "Драма",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.Companion.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.Companion.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = "IMDb: ${movie.imdbID}",
