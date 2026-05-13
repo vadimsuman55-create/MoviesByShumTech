@@ -1,17 +1,15 @@
 package com.shumtech.movies.data
 
 import com.shumtech.movies.domain.MovieRepository
-import com.shumtech.movies.model.Movie
-import com.shumtech.movies.model.MovieApi
-import com.shumtech.movies.model.MovieDao
-import com.shumtech.movies.model.RetrofitClient
+import com.shumtech.movies.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class MovieRepositoryImpl(
     private val movieDao: MovieDao,
-    private val api: MovieApi
+    private val api: MovieApi,
+    private val tmdbApi: TmdbApiService
 ) : MovieRepository {
 
     override fun getAllMovies(): Flow<List<Movie>> = movieDao.getAllMovies()
@@ -51,6 +49,25 @@ class MovieRepositoryImpl(
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()
+        }
+    }
+
+    override suspend fun getMovieTrailer(tmdbId: Int): String? = withContext(Dispatchers.IO) {
+        try {
+            val response = tmdbApi.getMovieVideos(
+                movieId = tmdbId,
+                apiKey = BuildConfig.TMDB_API_KEY,
+                language = "ru-RU"
+            )
+
+            // Ищем официальный трейлер на YouTube
+            response.results
+                .filter { it.site == "YouTube" && it.type == "Trailer" }
+                .firstOrNull { it.official }?.key
+                ?: response.results.firstOrNull { it.site == "YouTube" }?.key
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
