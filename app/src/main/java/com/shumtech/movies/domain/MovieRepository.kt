@@ -10,4 +10,5 @@ interface MovieRepository {
     suspend fun deleteSelectedMovies()
     suspend fun getMovieById(id: Int): Movie?
     suspend fun searchMovies(query: String): List<Movie>
+    suspend fun getMovieTrailer(tmdbId: Int): String? // Возвращает YouTube video ID
 }
