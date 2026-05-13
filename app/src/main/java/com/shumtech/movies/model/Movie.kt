@@ -11,6 +11,7 @@ data class Movie(
     val year: String,
     val posterUrl: String,
     val imdbID: String,
+    val tmdbId: Int? = null,
     var genre: String? = null,
     var isSelected: Boolean = false
 )
