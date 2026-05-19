@@ -8,4 +8,5 @@ sealed class MainIntent {
     object DeleteSelected : MainIntent()
     object AddMovieClicked : MainIntent()
     data class LoadTrailer(val tmdbId: Int) : MainIntent()
+    object NavigateBack : MainIntent()
 }

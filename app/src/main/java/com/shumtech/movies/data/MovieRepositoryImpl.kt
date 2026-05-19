@@ -5,6 +5,7 @@ import com.shumtech.movies.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.shumtech.movies.model.ApiKeys
 
 class MovieRepositoryImpl(
     private val movieDao: MovieDao,
@@ -56,7 +57,7 @@ class MovieRepositoryImpl(
         try {
             val response = tmdbApi.getMovieVideos(
                 movieId = tmdbId,
-                apiKey = BuildConfig.TMDB_API_KEY,
+                apiKey = ApiKeys.TMDB_API_KEY,
                 language = "ru-RU"
             )
 

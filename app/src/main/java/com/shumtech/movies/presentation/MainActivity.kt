@@ -20,8 +20,8 @@ import com.shumtech.movies.presentation.view.MainScreen
 import com.shumtech.movies.presentation.view.SearchScreen
 import com.shumtech.movies.presentation.view.TrailerScreen
 import com.shumtech.movies.model.TmdbRetrofitClient
-import com.shumtech.movies.model.TmdbApiService
 import com.shumtech.movies.domain.usecase.GetMovieTrailerUseCase
+import com.shumtech.movies.presentation.mvi.MainIntent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.shumtech.movies.domain.usecase.AddMovieUseCase
 import com.shumtech.movies.domain.usecase.DeleteSelectedMoviesUseCase
 import com.shumtech.movies.domain.usecase.GetMovieByIdUseCase
+import com.shumtech.movies.domain.usecase.GetMovieTrailerUseCase
 import com.shumtech.movies.domain.usecase.GetMoviesUseCase
 import com.shumtech.movies.domain.usecase.SearchMoviesUseCase
 import com.shumtech.movies.domain.usecase.ToggleMovieSelectionUseCase
@@ -79,12 +80,10 @@ class MainViewModel(
             is MainIntent.LoadTrailer -> {
                 viewModelScope.launch {
                     _mainState.update { it.copy(trailerError = null) }
-
                     val videoId = getMovieTrailerUseCase(intent.tmdbId)
-
                     if (videoId != null) {
                         _mainState.update { it.copy(trailerVideoId = videoId) }
-                        _currentScreen.value = MainViewModel.Screen.TRAILER
+                        _currentScreen.value = Screen.TRAILER
                     } else {
                         _mainState.update { it.copy(trailerError = "Трейлер не найден") }
                     }
@@ -93,7 +92,7 @@ class MainViewModel(
         }
     }
 
-    // --- Главный экран ---
+    // Главный экран
     private fun toggleSelection(movie: Movie) {
         viewModelScope.launch {
             toggleSelectionUseCase(movie)
@@ -106,7 +105,7 @@ class MainViewModel(
         }
     }
 
-    // --- Экран добавления ---
+    // Экран добавления
     private fun updateTitle(title: String) {
         _addState.update { it.copy(title = title) }
     }
@@ -149,7 +148,7 @@ class MainViewModel(
         }
     }
 
-    // --- Экран поиска ---
+    // Экран поиска
     private fun updateQuery(query: String) {
         _searchState.update { it.copy(query = query) }
     }
@@ -189,7 +188,7 @@ class MainViewModel(
         _searchState.update { it.copy(results = emptyList(), error = null, query = "") }
     }
 
-    // --- Навигация ---
+    // Навигация
     private fun navigateToAdd(movie: Movie? = null) {
         _addState.update {
             it.copy(
