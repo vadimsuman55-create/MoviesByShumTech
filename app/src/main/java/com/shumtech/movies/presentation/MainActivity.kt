@@ -18,6 +18,10 @@ import com.shumtech.movies.presentation.viewmodel.MainViewModel
 import com.shumtech.movies.presentation.view.AddScreen
 import com.shumtech.movies.presentation.view.MainScreen
 import com.shumtech.movies.presentation.view.SearchScreen
+import com.shumtech.movies.presentation.view.TrailerScreen
+import com.shumtech.movies.model.TmdbRetrofitClient
+import com.shumtech.movies.model.TmdbApiService
+import com.shumtech.movies.domain.usecase.GetMovieTrailerUseCase
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,6 +50,22 @@ class MainActivity : ComponentActivity() {
                         state = searchState,
                         onIntent = { viewModel.processIntent(it) }
                     )
+                    MainViewModel.Screen.TRAILER -> {
+                        // Берем ID из состояния. Если его нет — возвращаемся назад.
+                        val videoId = mainState.trailerVideoId
+                        if (videoId != null) {
+                            TrailerScreen(
+                                youtubeVideoId = videoId,
+                                onBack = {
+                                    // При возврате сбрасываем состояние и уходим на главный
+                                    viewModel.processIntent(MainIntent.NavigateBack) // или просто меняем Screen
+                                }
+                            )
+                        } else {
+                            // Если видео нет, возвращаемся на главный
+                            // (Это страховка на случай, если экран открылся, а данные не подгрузились)
+                        }
+                    }
                 }
             }
         }
@@ -58,8 +78,18 @@ class MainViewModelFactory(private val context: Context) : ViewModelProvider.Fac
             val database = MovieDatabase.getDatabase(context)
             val movieDao = database.movieDao()
             val api = RetrofitClient.instance
-            val repository = MovieRepositoryImpl(movieDao, api)
 
+            // Создаём TMDB API клиент
+            val tmdbApi = TmdbRetrofitClient.instance
+
+            // Передаём tmdbApi в репозиторий
+            val repository = MovieRepositoryImpl(
+                movieDao = movieDao,
+                api = api,
+                tmdbApi = tmdbApi
+            )
+
+            // Существующие UseCase
             val getMoviesUseCase = GetMoviesUseCase(repository)
             val addMovieUseCase = AddMovieUseCase(repository)
             val toggleSelectionUseCase = ToggleMovieSelectionUseCase(repository)
@@ -67,6 +97,9 @@ class MainViewModelFactory(private val context: Context) : ViewModelProvider.Fac
             val searchMoviesUseCase = SearchMoviesUseCase(repository)
             val getMovieByIdUseCase = GetMovieByIdUseCase(repository)
             val updateMovieUseCase = UpdateMovieUseCase(repository)
+
+            // Создаём UseCase для трейлера
+            val getMovieTrailerUseCase = GetMovieTrailerUseCase(repository)
 
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(
@@ -76,7 +109,8 @@ class MainViewModelFactory(private val context: Context) : ViewModelProvider.Fac
                 deleteSelectedUseCase,
                 searchMoviesUseCase,
                 getMovieByIdUseCase,
-                updateMovieUseCase
+                updateMovieUseCase,
+                getMovieTrailerUseCase
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

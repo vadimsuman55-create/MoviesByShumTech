@@ -7,4 +7,5 @@ sealed class MainIntent {
     data class ToggleSelection(val movie: Movie) : MainIntent()
     object DeleteSelected : MainIntent()
     object AddMovieClicked : MainIntent()
+    data class LoadTrailer(val tmdbId: Int) : MainIntent()
 }

@@ -29,7 +29,8 @@ class MainViewModel(
     private val deleteSelectedUseCase: DeleteSelectedMoviesUseCase,
     private val searchMoviesUseCase: SearchMoviesUseCase,
     private val getMovieByIdUseCase: GetMovieByIdUseCase,
-    private val updateMovieUseCase: UpdateMovieUseCase
+    private val updateMovieUseCase: UpdateMovieUseCase,
+    private val getMovieTrailerUseCase: GetMovieTrailerUseCase
 ) : ViewModel() {
 
     // Состояния
@@ -45,7 +46,7 @@ class MainViewModel(
     private val _currentScreen = MutableStateFlow(Screen.MAIN)
     val currentScreen: StateFlow<Screen> = _currentScreen.asStateFlow()
 
-    enum class Screen { MAIN, ADD, SEARCH }
+    enum class Screen { MAIN, ADD, SEARCH, TRAILER }
 
     init {
         viewModelScope.launch {
@@ -74,6 +75,21 @@ class MainViewModel(
             is SearchIntent.SelectMovie -> selectMovie(intent.movie)
             is SearchIntent.ClearResults -> clearResults()
             is SearchIntent.NavigateBack -> navigateBackFromSearch()
+
+            is MainIntent.LoadTrailer -> {
+                viewModelScope.launch {
+                    _mainState.update { it.copy(trailerError = null) }
+
+                    val videoId = getMovieTrailerUseCase(intent.tmdbId)
+
+                    if (videoId != null) {
+                        _mainState.update { it.copy(trailerVideoId = videoId) }
+                        _currentScreen.value = MainViewModel.Screen.TRAILER
+                    } else {
+                        _mainState.update { it.copy(trailerError = "Трейлер не найден") }
+                    }
+                }
+            }
         }
     }
 
