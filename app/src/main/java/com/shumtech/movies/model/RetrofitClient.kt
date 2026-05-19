@@ -36,18 +36,3 @@ object RetrofitClient {
             .create(MovieApi::class.java)
     }
 }
-
-object TmdbRetrofitClient {
-    private const val BASE_URL = "https://api.themoviedb.org/3/"
-
-    const val API_KEY = "5a0f5ca589e279d14e4b5c195826e001"
-
-    val instance: TmdbApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(RetrofitClient.client) // переиспользуем настроенный OkHttpClient
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-            .create(TmdbApiService::class.java)
-    }
-}

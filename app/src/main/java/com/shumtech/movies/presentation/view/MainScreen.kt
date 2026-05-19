@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -150,7 +151,8 @@ fun MainScreen(
                     ) { movie ->
                         MovieItem(
                             movie = movie,
-                            onSelectionChange = { onIntent(MainIntent.ToggleSelection(movie)) }
+                            onSelectionChange = { onIntent(MainIntent.ToggleSelection(movie)) },
+                            onIntent = onIntent
                         )
                     }
                 }
@@ -185,7 +187,8 @@ fun MainScreen(
 @Composable
 fun MovieItem(
     movie: Movie,
-    onSelectionChange: () -> Unit
+    onSelectionChange: () -> Unit,
+    onIntent: (MainIntent) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -303,6 +306,34 @@ fun MovieItem(
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
+                    }
+                }
+
+                // Кнопка просмотра трейлера
+                if (movie.tmdbId != null) {
+                    IconButton(
+                        onClick = {
+                            onIntent(MainIntent.LoadTrailer(movie.tmdbId!!))
+                        },
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PlayCircle,
+                                contentDescription = "Смотреть трейлер",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Трейлер",
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }

@@ -15,7 +15,7 @@ object TmdbRetrofitClient {
     val instance: TmdbApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(RetrofitClient.client) // переиспользуем твой OkHttpClient
+            .client(RetrofitClient.client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(TmdbApiService::class.java)
