@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.shumtech.movies.domain.usecase.AddMovieUseCase
 import com.shumtech.movies.domain.usecase.DeleteSelectedMoviesUseCase
 import com.shumtech.movies.domain.usecase.GetMovieByIdUseCase
+import com.shumtech.movies.domain.usecase.GetMovieDetailsUseCase
 import com.shumtech.movies.domain.usecase.GetMovieTrailerUseCase
 import com.shumtech.movies.domain.usecase.GetMoviesUseCase
 import com.shumtech.movies.domain.usecase.SearchMoviesUseCase
@@ -31,7 +32,8 @@ class MainViewModel(
     private val searchMoviesUseCase: SearchMoviesUseCase,
     private val getMovieByIdUseCase: GetMovieByIdUseCase,
     private val updateMovieUseCase: UpdateMovieUseCase,
-    private val getMovieTrailerUseCase: GetMovieTrailerUseCase
+    private val getMovieTrailerUseCase: GetMovieTrailerUseCase,
+    private val getMovieDetailsUseCase: GetMovieDetailsUseCase
 ) : ViewModel() {
 
     // Состояния
@@ -79,13 +81,23 @@ class MainViewModel(
 
             is MainIntent.LoadTrailer -> {
                 viewModelScope.launch {
-                    _mainState.update { it.copy(trailerError = null) }
+                    _mainState.update { it.copy(trailerError = null, isLoadingDetails = true) }
+
+                    // Загружаем трейлер и детали параллельно
                     val videoId = getMovieTrailerUseCase(intent.tmdbId)
+                    val details = getMovieDetailsUseCase(intent.tmdbId)
+
+                    _mainState.update {
+                        it.copy(
+                            trailerVideoId = videoId,
+                            movieDetails = details,
+                            isLoadingDetails = false,
+                            trailerError = if (videoId == null) "Трейлер не найден" else null
+                        )
+                    }
+
                     if (videoId != null) {
-                        _mainState.update { it.copy(trailerVideoId = videoId) }
                         _currentScreen.value = Screen.TRAILER
-                    } else {
-                        _mainState.update { it.copy(trailerError = "Трейлер не найден") }
                     }
                 }
             }
@@ -139,6 +151,7 @@ class MainViewModel(
                     year = state.year,
                     posterUrl = state.posterUrl,
                     imdbID = "",
+                    tmdbId = 550,
                     isSelected = false
                 )
                 addMovieUseCase(movie)

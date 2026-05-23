@@ -1,6 +1,7 @@
 package com.shumtech.movies.domain
 
 import com.shumtech.movies.model.Movie
+import com.shumtech.movies.model.TmdbMovieDetails
 import kotlinx.coroutines.flow.Flow
 
 interface MovieRepository {
@@ -11,4 +12,5 @@ interface MovieRepository {
     suspend fun getMovieById(id: Int): Movie?
     suspend fun searchMovies(query: String): List<Movie>
     suspend fun getMovieTrailer(tmdbId: Int): String? // Возвращает YouTube video ID
+    suspend fun getMovieDetails(tmdbId: Int): TmdbMovieDetails?
 }

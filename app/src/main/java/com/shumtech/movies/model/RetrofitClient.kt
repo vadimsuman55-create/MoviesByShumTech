@@ -22,7 +22,6 @@ object RetrofitClient {
         .readTimeout(30, TimeUnit.SECONDS)
         .build()
 
-    // Создаём Moshi с поддержкой Kotlin
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
         .build()
@@ -31,7 +30,7 @@ object RetrofitClient {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
-            .addConverterFactory(MoshiConverterFactory.create(moshi)) // используем настроенный moshi
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(MovieApi::class.java)
     }

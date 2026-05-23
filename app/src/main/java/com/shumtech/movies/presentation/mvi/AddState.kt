@@ -6,5 +6,6 @@ data class AddState(
     val posterUrl: String = "",
     val isEditMode: Boolean = false,
     val editingMovieId: Int? = null,
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val tmdbId: Int? = null
 )

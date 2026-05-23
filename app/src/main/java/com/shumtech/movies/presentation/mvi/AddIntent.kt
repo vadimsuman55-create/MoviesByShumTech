@@ -7,4 +7,5 @@ sealed class AddIntent {
     object OpenSearch : AddIntent()
     object SaveMovie : AddIntent()
     object NavigateBack : AddIntent()
+    data class UpdateTmdbId(val tmdbId: Int?) : AddIntent()
 }

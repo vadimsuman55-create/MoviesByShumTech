@@ -13,15 +13,14 @@ import com.shumtech.movies.data.MovieRepositoryImpl
 import com.shumtech.movies.domain.usecase.*
 import com.shumtech.movies.model.MovieDatabase
 import com.shumtech.movies.model.RetrofitClient
+import com.shumtech.movies.model.TmdbRetrofitClient
+import com.shumtech.movies.presentation.mvi.MainIntent
 import com.shumtech.movies.presentation.theme.MoviesByShumTechTheme
-import com.shumtech.movies.presentation.viewmodel.MainViewModel
 import com.shumtech.movies.presentation.view.AddScreen
 import com.shumtech.movies.presentation.view.MainScreen
 import com.shumtech.movies.presentation.view.SearchScreen
 import com.shumtech.movies.presentation.view.TrailerScreen
-import com.shumtech.movies.model.TmdbRetrofitClient
-import com.shumtech.movies.domain.usecase.GetMovieTrailerUseCase
-import com.shumtech.movies.presentation.mvi.MainIntent
+import com.shumtech.movies.presentation.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +31,8 @@ class MainActivity : ComponentActivity() {
                 val viewModel: MainViewModel = viewModel(
                     factory = MainViewModelFactory(applicationContext)
                 )
+
+                // Состояния экранов
                 val currentScreen by viewModel.currentScreen.collectAsState()
                 val mainState by viewModel.mainState.collectAsState()
                 val addState by viewModel.addState.collectAsState()
@@ -42,28 +43,26 @@ class MainActivity : ComponentActivity() {
                         state = mainState,
                         onIntent = { viewModel.processIntent(it) }
                     )
+
                     MainViewModel.Screen.ADD -> AddScreen(
                         state = addState,
                         onIntent = { viewModel.processIntent(it) }
                     )
+
                     MainViewModel.Screen.SEARCH -> SearchScreen(
                         state = searchState,
                         onIntent = { viewModel.processIntent(it) }
                     )
+
                     MainViewModel.Screen.TRAILER -> {
-                        // Берем ID из состояния. Если его нет — возвращаемся назад.
                         val videoId = mainState.trailerVideoId
                         if (videoId != null) {
                             TrailerScreen(
                                 youtubeVideoId = videoId,
-                                onBack = {
-                                    // При возврате сбрасываем состояние и уходим на главный
-                                    viewModel.processIntent(MainIntent.NavigateBack) // или просто меняем Screen
-                                }
+                                movieTitle = mainState.movieDetails?.title,
+                                movieOverview = mainState.movieDetails?.overview,
+                                onBack = { viewModel.processIntent(MainIntent.NavigateBack) }
                             )
-                        } else {
-                            // Если видео нет, возвращаемся на главный
-                            // (Это страховка на случай, если экран открылся, а данные не подгрузились)
                         }
                     }
                 }
@@ -75,21 +74,22 @@ class MainActivity : ComponentActivity() {
 class MainViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            // Инициализация базы данных
             val database = MovieDatabase.getDatabase(context)
             val movieDao = database.movieDao()
-            val api = RetrofitClient.instance
 
-            // Создаём TMDB API клиент
-            val tmdbApi = TmdbRetrofitClient.instance
+            // Инициализация API клиентов
+            val api = RetrofitClient.instance              // OMDb API
+            val tmdbApi = TmdbRetrofitClient.instance      // TMDB API
 
-            // Передаём tmdbApi в репозиторий
+            // Создание репозитория
             val repository = MovieRepositoryImpl(
                 movieDao = movieDao,
                 api = api,
                 tmdbApi = tmdbApi
             )
 
-            // Существующие UseCase
+            // Создание UseCase
             val getMoviesUseCase = GetMoviesUseCase(repository)
             val addMovieUseCase = AddMovieUseCase(repository)
             val toggleSelectionUseCase = ToggleMovieSelectionUseCase(repository)
@@ -97,20 +97,20 @@ class MainViewModelFactory(private val context: Context) : ViewModelProvider.Fac
             val searchMoviesUseCase = SearchMoviesUseCase(repository)
             val getMovieByIdUseCase = GetMovieByIdUseCase(repository)
             val updateMovieUseCase = UpdateMovieUseCase(repository)
-
-            // Создаём UseCase для трейлера
             val getMovieTrailerUseCase = GetMovieTrailerUseCase(repository)
+            val getMovieDetailsUseCase = GetMovieDetailsUseCase(repository)
 
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(
-                getMoviesUseCase,
-                addMovieUseCase,
-                toggleSelectionUseCase,
-                deleteSelectedUseCase,
-                searchMoviesUseCase,
-                getMovieByIdUseCase,
-                updateMovieUseCase,
-                getMovieTrailerUseCase
+                getMoviesUseCase = getMoviesUseCase,
+                addMovieUseCase = addMovieUseCase,
+                toggleSelectionUseCase = toggleSelectionUseCase,
+                deleteSelectedUseCase = deleteSelectedUseCase,
+                searchMoviesUseCase = searchMoviesUseCase,
+                getMovieByIdUseCase = getMovieByIdUseCase,
+                updateMovieUseCase = updateMovieUseCase,
+                getMovieTrailerUseCase = getMovieTrailerUseCase,
+                getMovieDetailsUseCase = getMovieDetailsUseCase
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

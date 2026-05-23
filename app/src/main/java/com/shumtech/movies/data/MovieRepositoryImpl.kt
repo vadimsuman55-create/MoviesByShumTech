@@ -71,4 +71,17 @@ class MovieRepositoryImpl(
             null
         }
     }
+
+    override suspend fun getMovieDetails(tmdbId: Int): TmdbMovieDetails? = withContext(Dispatchers.IO) {
+        try {
+            tmdbApi.getMovieDetails(
+                movieId = tmdbId,
+                apiKey = ApiKeys.TMDB_API_KEY,
+                language = "ru-RU"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 }
