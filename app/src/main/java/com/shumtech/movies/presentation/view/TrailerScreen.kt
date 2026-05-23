@@ -5,6 +5,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -32,20 +33,20 @@ fun TrailerScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Назад"
                         )
                     }
                 },
                 actions = {
-                    // Кнопка "Открыть в YouTube"
+                    // Кнопка "Открыть в YouTube" - используем иконку Share
                     IconButton(
                         onClick = {
                             openYouTubeVideo(context, youtubeVideoId)
                         }
                     ) {
                         Icon(
-                            Icons.Default.OpenInNew,
+                            Icons.Filled.Share,
                             contentDescription = "Открыть в YouTube",
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -62,9 +63,9 @@ fun TrailerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Иконка YouTube
+            // Иконка Play (видео)
             Icon(
-                imageVector = Icons.Default.PlayCircle,
+                imageVector = Icons.Filled.PlayArrow,
                 contentDescription = null,
                 modifier = Modifier.size(120.dp),
                 tint = MaterialTheme.colorScheme.primary
@@ -99,7 +100,7 @@ fun TrailerScreen(
                 modifier = Modifier.fillMaxWidth(0.8f)
             ) {
                 Icon(
-                    Icons.Default.PlayArrow,
+                    Icons.Filled.PlayArrow,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp)
                 )
@@ -147,7 +148,7 @@ fun TrailerScreen(
     }
 }
 
-// ===== Вспомогательная функция для открытия видео =====
+// Вспомогательная функция для открытия видео
 private fun openYouTubeVideo(context: android.content.Context, videoId: String) {
     val intent = Intent(Intent.ACTION_VIEW).apply {
         data = Uri.parse("https://www.youtube.com/watch?v=$videoId")
