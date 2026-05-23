@@ -61,6 +61,9 @@ class MainActivity : ComponentActivity() {
                                 youtubeVideoId = videoId,
                                 movieTitle = mainState.movieDetails?.title,
                                 movieOverview = mainState.movieDetails?.overview,
+                                posterUrl = mainState.movieDetails?.poster_path?.let {
+                                    "https://image.tmdb.org/t/p/w500$it"
+                                },
                                 onBack = { viewModel.processIntent(MainIntent.NavigateBack) }
                             )
                         }

@@ -151,7 +151,7 @@ class MainViewModel(
                     year = state.year,
                     posterUrl = state.posterUrl,
                     imdbID = "",
-                    tmdbId = 550,
+                    tmdbId = state.tmdbId,
                     isSelected = false
                 )
                 addMovieUseCase(movie)
